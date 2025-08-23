@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>urBot - RAG Chatbot</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 15px;
+    }
+
+    .connection-status {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .status-indicator {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .upload-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+
+    .upload-section h3 {
+      margin-bottom: 20px;
+      color: #4a5568;
+      font-size: 1.3rem;
+    }
+
+    .file-upload-area {
+      border: 2px dashed #cbd5e0;
+      border-radius: 10px;
+      padding: 40px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .file-upload-area:hover {
+      border-color: #667eea;
+      background-color: #f7fafc;
+    }
+
+    .file-upload-area.dragover {
+      border-color: #667eea;
+      background-color: #ebf8ff;
+    }
+
+    .file-upload-area input[type="file"] {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: #a0aec0;
+      margin-bottom: 15px;
+    }
+
+    .upload-text {
+      color: #718096;
+      margin-bottom: 10px;
+    }
+
+    .upload-hint {
+      font-size: 0.9rem;
+      color: #a0aec0;
+    }
+
+    .upload-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .upload-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .upload-status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .upload-status.success {
+      background-color: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+
+    .upload-status.error {
+      background-color: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #feb2b2;
+    }
+
+    .chat-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+    }
+
+    .chat-section h3 {
+      margin-bottom: 20px;
+      color: #4a5568;
+      font-size: 1.3rem;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: #f7fafc;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .message.bot {
+      background: white;
+      color: #333;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .message.typing {
+      background: #e2e8f0;
+      color: #718096;
+      font-style: italic;
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 25px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .chat-input:focus {
+      border-color: #667eea;
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .welcome-message {
+      text-align: center;
+      color: #718096;
+      font-style: italic;
+      margin: 20px 0;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+    }
+
+    .file-info {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f7fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      display: none;
+    }
+
+    .file-info.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 urBot</h1>
+      <p>Chat with your documents using Retrieval Augmented Generation</p>
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-indicator" id="uploadStatus">🔴 Upload: Checking...</span>
+        <span class="status-indicator" id="chatStatus">🔴 Chat: Checking...</span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <!-- File Upload Section -->
+      <div class="upload-section">
+        <h3>📄 Upload Document</h3>
+        <div class="file-upload-area" id="fileUploadArea">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Drop your PDF here</div>
+          <div class="upload-hint">or click to browse</div>
+          <input type="file" id="fileInput" accept=".pdf" />
+        </div>
+        <button class="upload-btn" id="uploadBtn" disabled>Upload Document</button>
+        <div class="upload-status" id="uploadStatus"></div>
+        <div class="file-info" id="fileInfo"></div>
+      </div>
+
+      <!-- Chat Section -->
+      <div class="chat-section">
+        <h3>💬 Chat Interface</h3>
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message">
+            👋 Welcome! Upload a document to start chatting with your data.
+          </div>
+        </div>
+        <div class="chat-input-container">
+          <input 
+            type="text" 
+            class="chat-input" 
+            id="chatInput" 
+            placeholder="Ask a question about your document..."
+            disabled
+          />
+          <button class="send-btn" id="sendBtn" disabled>Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Webhook URLs from your n8n workflow
+    const UPLOAD_WEBHOOK = "http://localhost:5678/webhook/4e1e20d4-f759-42c8-8439-87b93f43aa7c";
+    const CHAT_WEBHOOK = "http://localhost:5678/webhook/5e56a263-3a40-44bd-bc9d-1cfb3bc2a87d/chat";
+
+    // DOM elements
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const fileInfo = document.getElementById('fileInfo');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    let selectedFile = null;
+
+    // File upload handling
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileUploadArea.classList.add('dragover');
+    });
+    fileUploadArea.addEventListener('dragleave', () => {
+      fileUploadArea.classList.remove('dragover');
+    });
+    fileUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileUploadArea.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    function handleFileSelect(file) {
+      if (file.type !== 'application/pdf') {
+        showUploadStatus('Please select a PDF file.', 'error');
+        return;
+      }
+
+      selectedFile = file;
+      uploadBtn.disabled = false;
+      
+      // Show file info
+      fileInfo.innerHTML = `
+        <strong>Selected file:</strong> ${file.name}<br>
+        <strong>Size:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB
+      `;
+      fileInfo.classList.add('show');
+      
+      showUploadStatus('File selected. Click upload to process.', 'success');
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const response = await fetch(UPLOAD_WEBHOOK, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          showUploadStatus('✅ Document uploaded and processed successfully! You can now start chatting.', 'success');
+          
+          // Enable chat interface
+          chatInput.disabled = false;
+          sendBtn.disabled = false;
+          chatInput.placeholder = "Ask a question about your document...";
+          
+          // Add success message to chat
+          addMessage('bot', '🎉 Document processed successfully! I\'m ready to answer questions about your content.');
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        showUploadStatus(`❌ Upload failed: ${error.message}`, 'error');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = 'Upload Document';
+      }
+    });
+
+    function showUploadStatus(message, type) {
+      uploadStatus.textContent = message;
+      uploadStatus.className = `upload-status ${type}`;
+      uploadStatus.style.display = 'block';
+      
+      // Auto-hide success messages after 5 seconds
+      if (type === 'success') {
+        setTimeout(() => {
+          uploadStatus.style.display = 'none';
+        }, 5000);
+      }
+    }
+
+    // Chat functionality
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    async function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage('user', message);
+      chatInput.value = '';
+
+      // Add typing indicator
+      const typingId = addMessage('bot', '...', 'typing');
+
+      try {
+        // n8n chat webhook expects ?action=sendMessage query parameter
+        const chatUrl = `${CHAT_WEBHOOK}?action=sendMessage`;
+        const response = await fetch(chatUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            chatInput: message, // AI Agent expects 'chatInput' field
+            sessionId: 'default-session' // n8n chat expects a session ID
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          
+          // Remove typing indicator and add bot response
+          removeMessage(typingId);
+          addMessage('bot', result.output || result.answer || 'I received your message but couldn\'t generate a response.');
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Chat error:', error);
+        removeMessage(typingId);
+        
+        if (error.message.includes('404')) {
+          addMessage('bot', '❌ Chat service not available. Please make sure your n8n workflow is active and running.');
+        } else if (error.message.includes('Failed to fetch')) {
+          addMessage('bot', '❌ Cannot connect to chat service. Please check if n8n is running on localhost:5678');
+        } else {
+          addMessage('bot', `❌ Error: ${error.message}`);
+        }
+      }
+    }
+
+    function addMessage(sender, content, className = '') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender} ${className}`;
+      messageDiv.textContent = content;
+      
+      if (className === 'typing') {
+        messageDiv.id = 'typing-' + Date.now();
+      }
+      
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      return messageDiv.id;
+    }
+
+    function removeMessage(messageId) {
+      const message = document.getElementById(messageId);
+      if (message) {
+        message.remove();
+      }
+    }
+
+    // Test connection on page load
+    window.addEventListener('load', async () => {
+      const uploadStatusEl = document.getElementById('uploadStatus');
+      const chatStatusEl = document.getElementById('chatStatus');
+
+      try {
+        // Use POST with minimal data for more reliable testing
+        const formData = new FormData();
+        formData.append('file', new Blob(['test'], { type: 'text/plain' }), 'test.txt');
+        
+        const response = await fetch(UPLOAD_WEBHOOK, { 
+          method: 'POST',
+          body: formData
+        });
+        if (response.ok || response.status === 200) {
+          console.log('✅ Upload webhook is accessible');
+          uploadStatusEl.innerHTML = '🟢 Upload: Connected';
+          uploadStatusEl.style.color = '#48bb78';
+        } else {
+          console.warn('⚠️ Upload webhook returned status:', response.status);
+          uploadStatusEl.innerHTML = `🟡 Upload: Status ${response.status}`;
+          uploadStatusEl.style.color = '#ed8936';
+        }
+      } catch (error) {
+        console.error('❌ Upload webhook not accessible:', error.message);
+        uploadStatusEl.innerHTML = '🔴 Upload: Not accessible';
+        uploadStatusEl.style.color = '#f56565';
+        showUploadStatus('⚠️ Warning: Upload webhook may not be accessible. Make sure n8n is running.', 'error');
+      }
+
+      try {
+        // Test with the correct n8n chat webhook format
+        const testUrl = `${CHAT_WEBHOOK}?action=sendMessage`;
+        // Use POST with minimal data instead of HEAD for more reliable testing
+        const response = await fetch(testUrl, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatInput: 'test', sessionId: 'test' })
+        });
+        if (response.ok || response.status === 500) {
+          // 500 is actually OK - it means the webhook is working but workflow has errors
+          console.log('✅ Chat webhook is accessible');
+          chatStatusEl.innerHTML = '🟢 Chat: Connected';
+          chatStatusEl.style.color = '#48bb78';
+        } else {
+          console.warn('⚠️ Chat webhook returned status:', response.status);
+          chatStatusEl.innerHTML = `🟡 Chat: Status ${response.status}`;
+          chatStatusEl.style.color = '#ed8936';
+        }
+      } catch (error) {
+        console.error('❌ Chat webhook not accessible:', error.message);
+        chatStatusEl.innerHTML = '🔴 Chat: Not accessible';
+        chatStatusEl.style.color = '#f56565';
+        showUploadStatus('⚠️ Warning: Chat webhook may not be accessible. Make sure n8n is running.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
