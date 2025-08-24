@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -5,48 +6,49 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --background: 0 0% 4%;
+    --foreground: 45 33% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 45 33% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 45 33% 95%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 45 33% 95%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 45 33% 70%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 33% 95%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 45 100% 51%;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    --background: 0 0% 4%;
+    --foreground: 45 33% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 45 33% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 45 33% 95%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 45 33% 95%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 45 33% 70%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 33% 95%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 45 100% 51%;
+    --radius: 0.75rem;
   }
 }
 
@@ -54,8 +56,22 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    line-height: 1.2;
   }
 }
 
@@ -64,6 +80,9 @@
     height: 600px !important;
     max-height: 600px !important;
     overflow: hidden !important;
+    background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+    border: 1px solid #333;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
   }
   
   .chat-messages {
@@ -72,10 +91,76 @@
     min-height: 0;
     max-height: calc(600px - 180px) !important;
     height: calc(600px - 180px) !important;
+    background: linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%);
+    border: 1px solid #333;
+    border-radius: 12px;
   }
   
   .chat-input-area {
     flex-shrink: 0 !important;
     height: auto !important;
+    background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-top: 1px solid #333;
+  }
+  
+  .premium-card {
+    background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+    border: 1px solid #333;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+  }
+  
+  .premium-button {
+    background: linear-gradient(135deg, #d4af37 0%, #f4e4a6 50%, #d4af37 100%);
+    border: 1px solid #b8860b;
+    color: #000;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+  
+  .premium-button:hover {
+    background: linear-gradient(135deg, #b8860b 0%, #d4af37 50%, #b8860b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+  }
+  
+  .premium-button:disabled {
+    background: linear-gradient(135deg, #666 0%, #888 50%, #666 100%);
+    border-color: #555;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .premium-input {
+    background: linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%);
+    border: 1px solid #333;
+    color: #e5e5e5;
+    transition: all 0.3s ease;
+  }
+  
+  .premium-input:focus {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  }
+  
+  .gold-gradient-bg {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%, #0a0a0a 100%);
+  }
+  
+  .gold-accent {
+    color: #d4af37;
+  }
+  
+  .gold-border {
+    border-color: #d4af37;
+  }
+  
+  .glass-effect {
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
   }
 }
